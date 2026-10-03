@@ -16,11 +16,10 @@ export const generateInterviewReport = async ({ jobDescription, selfDescription,
     formData.append("selfDescription", selfDescription)
     formData.append("resume", resumeFile)
 
-    const response = await api.post("/api/interview/", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    })
+    // Let axios set the multipart Content-Type together with the required
+    // boundary automatically. Setting it manually here would omit the
+    // boundary and break the upload.
+    const response = await api.post("/api/interview/", formData)
 
     return response.data
 

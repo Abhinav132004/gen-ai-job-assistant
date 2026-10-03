@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon server.js"
+    "start": "node server.js",
+    "dev": "npx nodemon server.js",
+    "dev:mem": "node server.mem.js"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +26,8 @@
     "puppeteer": "^24.37.5",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.25.1"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
   }
 }

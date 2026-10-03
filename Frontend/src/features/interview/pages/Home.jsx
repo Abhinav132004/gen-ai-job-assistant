@@ -8,14 +8,52 @@ const Home = () => {
     const { loading, generateReport,reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ resumeFileName, setResumeFileName ] = useState("")
+    const [ error, setError ] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
+    const handleResumeChange = (e) => {
+        setError("")
+        const file = e.target.files[ 0 ]
+
+        if (!file) {
+            setResumeFileName("")
+            return
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setError("Resume is too large. Maximum size is 5MB.")
+            e.target.value = ""
+            setResumeFileName("")
+            return
+        }
+
+        setResumeFileName(file.name)
+    }
+
     const handleGenerateReport = async () => {
-        const resumeFile = resumeInputRef.current.files[ 0 ]
+        setError("")
+        const resumeFile = resumeInputRef.current?.files?.[ 0 ]
+
+        if (!jobDescription.trim()) {
+            setError("Please paste the target job description.")
+            return
+        }
+
+        if (!resumeFile && !selfDescription.trim()) {
+            setError("Please upload a resume or add a quick self-description.")
+            return
+        }
+
         const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-        navigate(`/interview/${data._id}`)
+
+        if (data && data._id) {
+            navigate(`/interview/${data._id}`)
+        } else {
+            setError("Something went wrong while generating your plan. Please try again.")
+        }
     }
 
     if (loading) {
@@ -75,13 +113,13 @@ const Home = () => {
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
                             </label>
-                            <label className='dropzone' htmlFor='resume'>
+                            <label className={`dropzone${resumeFileName ? ' dropzone--filled' : ''}`} htmlFor='resume'>
                                 <span className='dropzone__icon'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                 </span>
-                                <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
+                                <p className='dropzone__title'>{resumeFileName ? resumeFileName : 'Click to upload or drag & drop'}</p>
+                                <p className='dropzone__subtitle'>{resumeFileName ? 'Click to choose a different file' : 'PDF only (Max 5MB)'}</p>
+                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,application/pdf' onChange={handleResumeChange} />
                             </label>
                         </div>
 
@@ -109,6 +147,13 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Error message */}
+                {error && (
+                    <div className='form-error' role='alert' style={{ color: '#ff6b6b', padding: '0 24px 8px', fontSize: '0.9rem' }}>
+                        {error}
+                    </div>
+                )}
 
                 {/* Card Footer */}
                 <div className='interview-card__footer'>
