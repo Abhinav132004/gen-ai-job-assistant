@@ -6,8 +6,17 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+
+// Allowed frontend origins. In production, set FRONTEND_URL to the deployed
+// frontend URL (e.g. https://your-frontend.onrender.com). Falls back to the
+// local Vite dev server for development.
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL
+].filter(Boolean)
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true
 }))
 
